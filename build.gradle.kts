@@ -1,3 +1,6 @@
+import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.jvm.tasks.Jar
+
 plugins {
     kotlin("jvm") version "2.2.20"
     kotlin("plugin.serialization") version "2.2.20"
@@ -35,5 +38,10 @@ tasks.withType<Jar>().configureEach {
         attributes["Main-Class"] = "dev.aquestry.gaterouter.MainKt"
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    from(
+        configurations.runtimeClasspath.get().map {
+            if (it.isDirectory) it else zipTree(it)
+        }
+    )
+    exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
 }

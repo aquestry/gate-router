@@ -1,16 +1,14 @@
-FROM ghcr.io/minekube/gate:latest AS gate
+FROM gradle:8.7-jdk21-alpine AS builder
+WORKDIR /workspace
+COPY build.gradle.kts settings.gradle.kts ./
+COPY src src
+RUN gradle clean build -x test
 
-FROM eclipse-temurin:21-jdk-alpine
+FROM ghcr.io/minekube/gate/jre:latest
 WORKDIR /app
-
-COPY --from=gate /usr/local/bin/gate /usr/local/bin/gate
-
-COPY build/libs/gate-panel.jar /app/gate-panel.jar
+COPY --from=builder /workspace/build/libs/*.jar /app/gate-panel.jar
 COPY config.yml /app/config.yml
-
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
-
 EXPOSE 25565 8080
-
-CMD ["/app/start.sh"]
+ENTRYPOINT ["/app/start.sh"]
