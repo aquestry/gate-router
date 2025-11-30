@@ -812,7 +812,7 @@ fun main() {
                                             required = true
                                             containers.forEach { c ->
                                                 option {
-                                                    value = c.id
+                                                    value = c.name
                                                     val marker = if (c.hasDefaultPort) " (25565)" else ""
                                                     +("${c.name}$marker (${c.id.take(12)})")
                                                 }
