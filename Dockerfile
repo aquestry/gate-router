@@ -1,22 +1,16 @@
-FROM ghcr.io/minekube/gate/jre:latest
+FROM ghcr.io/minekube/gate:latest AS gate
 
+FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 
-# Check Alpine version and install Python
-RUN apk update && apk add --no-cache python3 py3-pip || \
-    (apk add --no-cache python py-pip)
+COPY --from=gate /usr/local/bin/gate /usr/local/bin/gate
 
-COPY requirements.txt /app/
-RUN pip3 install --break-system-packages -r requirements.txt || \
-    pip install -r requirements.txt
-
+COPY build/libs/gate-panel.jar /app/gate-panel.jar
 COPY config.yml /app/config.yml
-COPY api.py /app/api.py
-COPY index.html /app/index.html
-COPY entrypoint.sh /entrypoint.sh
 
-RUN chmod +x /entrypoint.sh
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
 EXPOSE 25565 8080
 
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/app/start.sh"]
